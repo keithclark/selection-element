@@ -1,0 +1,14 @@
+{
+  "name": "selection-element",
+  "version": "1.0.0",
+  "description": "A web component for listing and selecting other HTML elements",
+  "main": "src/SelectionElement.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Keith Clark",
+  "license": "MIT",
+  "devDependencies": {
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}
