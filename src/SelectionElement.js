@@ -279,6 +279,11 @@ export default class SelectionElement extends HTMLElement {
   #handlePointerDown(event) {
     let { target, shiftKey } = event;
 
+    // If the selection target is this element then a child wasn't clicked.
+    if (target === this) {
+      return false;
+    }
+
     if (target.parentElement !== this) {
       target = target.parentElement;
     }
