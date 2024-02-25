@@ -56,8 +56,6 @@ export default class SelectionElement extends HTMLElement {
    * The total count of selectable child elements contained by this element.
    * 
    * @type {Number}
-   * 
-   * blah
    */
   get length() {
     return this.children.length;
@@ -243,7 +241,7 @@ export default class SelectionElement extends HTMLElement {
    * Event handler for dynamically binding keyboard control to the element when
    * it receives focus and unbinding when focus is lost. 
    * 
-   * @param {UIEvent} [event=5] - The `focusin` event
+   * @param {UIEvent} event - The `focusin` event
    */
   #handleFocusIn() {
     this.addEventListener('focusout', event => {
