@@ -49,7 +49,6 @@ export default class SelectionElement extends HTMLElement {
     this.#focusInHandler = this.#handleFocusIn.bind(this);
     this.#pointerDownHandler = this.#handlePointerDown.bind(this);
     this.tabIndex = "0";
-    console.log(this.constructor.selectedAttributeName)
   }
 
 
