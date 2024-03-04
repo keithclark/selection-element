@@ -1,9 +1,10 @@
 {
-  "name": "selection-element",
-  "version": "1.0.0",
+  "name": "@keithclark/selection-element",
+  "version": "1.1.0",
   "description": "A web component for listing and selecting other HTML elements",
   "main": "src/SelectionElement.js",
   "scripts": {
+    "build": "rollup -c rollup.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Keith Clark",

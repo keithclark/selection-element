@@ -49,7 +49,6 @@ class SelectionElement extends HTMLElement {
     this.#focusInHandler = this.#handleFocusIn.bind(this);
     this.#pointerDownHandler = this.#handlePointerDown.bind(this);
     this.tabIndex = "0";
-    console.log(this.constructor.selectedAttributeName);
   }
 
 
@@ -57,8 +56,6 @@ class SelectionElement extends HTMLElement {
    * The total count of selectable child elements contained by this element.
    * 
    * @type {Number}
-   * 
-   * blah
    */
   get length() {
     return this.children.length;
@@ -244,32 +241,57 @@ class SelectionElement extends HTMLElement {
    * Event handler for dynamically binding keyboard control to the element when
    * it receives focus and unbinding when focus is lost. 
    * 
-   * @param {UIEvent} [event=5] - The `focusin` event
+   * @param {UIEvent} event - The `focusin` event
    */
   #handleFocusIn() {
-    this.addEventListener('focusout', event => {
-      document.removeEventListener('keydown', keyHandler);
-    }, { once: true } );
   
-    const keyHandler = event => {
+    /** @param {KeyboardEvent} event - The `keydown` event  */
+    const keyHandler = (event) => {
       const { key } = event;
-      if (key === 'ArrowRight' || key === 'ArrowDown') {
-        if (this.selectedIndex < this.length - 1) {
-          this.selectedIndex++;
-          this.#scrollSelectionIntoView();
-          this.#notifySelectionChange();
-          event.preventDefault();
+
+      let { selectedIndex: newSelectionIndex } = this;
+
+      if (key === 'Home') {
+        newSelectionIndex = 0;
+      } else if (key === 'End') {
+        newSelectionIndex = this.children.length - 1;
+      } else if (key === 'PageUp') {
+        const index = this.#getPreviousNonvisibleChildIndex();
+        if (index > -1) {
+          newSelectionIndex = index;
+        }
+      } else if (key === 'PageDown') {
+        const index = this.#getNextNonvisibleChildIndex();
+        if (index > -1) {
+          newSelectionIndex = index;
+        }
+      } else if (key === 'ArrowRight' || key === 'ArrowDown') {
+        if (newSelectionIndex < this.length - 1) {
+          newSelectionIndex++;
         }
       } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
-        if (this.selectedIndex > 0) {
-          this.selectedIndex--;
-          this.#scrollSelectionIntoView();
-          this.#notifySelectionChange();
-          event.preventDefault();
+        if (newSelectionIndex > 0) {
+          newSelectionIndex--;
         }
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (newSelectionIndex !== this.selectedIndex) {
+        this.selectedIndex = newSelectionIndex;
+        this.#scrollSelectionIntoView();
+        this.#notifySelectionChange();
       }
     };
+
     document.addEventListener('keydown', keyHandler);
+
+    this.addEventListener('focusout', (event) => {
+      document.removeEventListener('keydown', keyHandler);
+    }, { once: true } );
+
   }
 
 
@@ -281,6 +303,11 @@ class SelectionElement extends HTMLElement {
    */
   #handlePointerDown(event) {
     let { target, shiftKey } = event;
+
+    // If the selection target is this element then a child wasn't clicked.
+    if (target === this) {
+      return false;
+    }
 
     if (target.parentElement !== this) {
       target = target.parentElement;
@@ -307,6 +334,85 @@ class SelectionElement extends HTMLElement {
       this.#notifySelectionChange();
     }
   }
+
+
+  /**
+   * Returns the first child element that falls outside the visible scroll area 
+   * of the scrollbox. The current selected index is used as the reference.
+   * 
+   * @returns {number} The element index
+   */
+  #getNextNonvisibleChildIndex() {
+
+    const { selectedIndex } = this;
+    if (selectedIndex == -1) {
+      return -1;
+    }
+  
+    const containerBounds = this.getBoundingClientRect();
+    const selectionBounds = this.children[selectedIndex].getBoundingClientRect();
+  
+    const pageBounds = DOMRect.fromRect(containerBounds);
+    pageBounds.y += selectionBounds.top - containerBounds.top;
+    pageBounds.x += selectionBounds.left - containerBounds.left;
+  
+    for (let c = selectedIndex + 1; c < this.children.length; c++) {
+      const bounds = this.children[c].getBoundingClientRect();
+      if (!this.#rectContains(pageBounds, bounds)) {
+        return c;
+      }
+    }
+  
+    return this.children.length - 1;
+  }
+
+
+  /**
+   * Returns the first child element that falls outside the visible scroll area 
+   * of the scrollbox. The current selected index is used as the reference.
+   * 
+   * @returns {number} The element index
+   */
+  #getPreviousNonvisibleChildIndex() {
+    const { selectedIndex } = this;
+    if (selectedIndex == -1) {
+      return -1;
+    }
+  
+    const containerBounds = this.getBoundingClientRect();
+    const selectionBounds = this.children[selectedIndex].getBoundingClientRect();
+  
+    const pageBounds = DOMRect.fromRect(containerBounds);
+    pageBounds.y -= containerBounds.bottom - selectionBounds.bottom;
+    pageBounds.x -= containerBounds.right - selectionBounds.right;
+  
+    for (let c = selectedIndex - 1; c >= 0; c--) {
+      const bounds = this.children[c].getBoundingClientRect();
+      if (!this.#rectContains(pageBounds, bounds)) {
+        return c;
+      }
+    }
+  
+    return 0;
+  }
+
+
+  /**
+   * Checks if a rectangle contains another
+   * 
+   * @param {DOMRect} a A rectangle defining the outer bounds
+   * @param {DOMRect} b A rectangle to check
+   * @returns {boolean} 
+   */
+  #rectContains = (a, b) => {
+    return (
+      b.left >= a.left &&
+      b.right <= a.right &&
+      b.top >= a.top &&
+      b.bottom <= a.bottom 
+    )
+  }
+
 
 }
 
