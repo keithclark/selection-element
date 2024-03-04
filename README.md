@@ -17,7 +17,7 @@ the module via `import`. The component doesn't automaticall register itself with
 the custom element registry so you'll need to handle that:
 
 ```js
-import SelectionElement from './path/to/selectionelement.esm.min.js';
+import SelectionElement from './path/to/selectionelement-1.0.1.esm.min.js';
 customElements.define('my-selector', SelectionElement);
 ```
 
