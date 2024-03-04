@@ -1,5 +1,5 @@
 {
-  "name": "selection-element",
+  "name": "@keithclark/selection-element",
   "version": "1.0.1",
   "description": "A web component for listing and selecting other HTML elements",
   "main": "src/SelectionElement.js",
