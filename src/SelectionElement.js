@@ -39,7 +39,7 @@ const createCSS = (selectedAttrName) => `
 export default class SelectionElement extends HTMLElement {
 
   #focusInHandler;
-  #pointerDownHandler;
+  #clickHandler;
   #allowMultipeSelections = false;
 
   constructor() {
@@ -47,7 +47,7 @@ export default class SelectionElement extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.innerHTML = `<style>${createCSS(this.constructor.selectedAttributeName)}</style><slot/>`;
     this.#focusInHandler = this.#handleFocusIn.bind(this);
-    this.#pointerDownHandler = this.#handlePointerDown.bind(this);
+    this.#clickHandler = this.#handleClick.bind(this);
     this.tabIndex = "0";
   }
 
@@ -147,13 +147,13 @@ export default class SelectionElement extends HTMLElement {
 
   connectedCallback() {
     this.addEventListener('focusin', this.#focusInHandler);
-    this.addEventListener('pointerdown', this.#pointerDownHandler);
+    this.addEventListener('click', this.#clickHandler);
   }
 
 
   disconnectedCallback() {
     this.removeEventListener('focusin', this.#focusInHandler);
-    this.removeEventListener('pointerdown', this.#pointerDownHandler);
+    this.removeEventListener('click', this.#clickHandler);
   }
 
 
@@ -296,12 +296,12 @@ export default class SelectionElement extends HTMLElement {
 
 
   /**
-   * Handler for pointer based events. Used to select and deselect items using
+   * Handler for click events. Used to select and deselect items using
    * a pointer.
    * 
-   * @param {PointerEvent} event - The `pointerdown` event
+   * @param {MouseEvent} event - The `click` event
    */
-  #handlePointerDown(event) {
+  #handleClick(event) {
     let { target, shiftKey } = event;
 
     // If the selection target is this element then a child wasn't clicked.
